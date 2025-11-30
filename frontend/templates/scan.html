@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Your Body</title>
+</head>
+<body>
+    <h1>Scan Your Body & Set Your Preferences</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    <form id="preferencesForm">
+        <h2>Style Preferences</h2>
+        <label for="style">Style:</label>
+        <input type="text" id="style" name="style" placeholder="e.g., modern, classic, sporty">
+        <br>
+        <label for="color">Preferred Color:</label>
+        <input type="text" id="color" name="color" placeholder="e.g., blue, black, red">
+        <br>
+        <h2>Functional Preferences</h2>
+        <label for="material">Material:</label>
+        <input type="text" id="material" name="material" placeholder="e.g., cotton, leather, breathable fabric">
+        <br>
+        <label for="features">Desired Features:</label>
+        <textarea id="features" name="features" placeholder="e.g., extra pockets, waterproof, lightweight"></textarea>
+        <br>
+        <button type="submit">Submit Scan and Preferences</button>
+    </form>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const form = document.getElementById('preferencesForm');
+        const context = canvas.getContext('2d');
+
+        // Get access to the camera
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+                video.srcObject = stream;
+                video.play();
+            }).catch(function(err) {
+                console.error("Error accessing camera: ", err);
+                alert("Could not access the camera. Please ensure you have given permission.");
+            });
+        }
+
+        // Handle the combined form submission
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Stop the default form submission
+
+            context.drawImage(video, 0, 0, 640, 480);
+            canvas.toBlob((blob) => {
+                const formData = new FormData(form);
+                formData.append('scan', blob, 'scan.png');
+
+                fetch('/api/scans', {
+                    method: 'POST',
+                    body: formData
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Scan and preferences submitted successfully!');
+                    } else {
+                        alert('Submission failed.');
+                    }
+                }).catch(error => {
+                    console.error('Error submitting form:', error);
+                    alert('An error occurred during submission.');
+                });
+            }, 'image/png');
+        });
+    </script>
+</body>
+</html>
