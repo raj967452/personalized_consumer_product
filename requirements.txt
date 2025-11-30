@@ -1,3 +1,9 @@
 Flask
 gunicorn
 python-dotenv
+Flask-SQLAlchemy
+Flask-Migrate
+psycopg2-binary
+Flask-Login
+webauthn
+trimesh

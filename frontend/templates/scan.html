@@ -52,7 +52,7 @@
                 const formData = new FormData(form);
                 formData.append('scan', blob, 'scan.png');
 
-                fetch('/submit_preferences', {
+                fetch('/api/scans', {
                     method: 'POST',
                     body: formData
                 }).then(response => {
